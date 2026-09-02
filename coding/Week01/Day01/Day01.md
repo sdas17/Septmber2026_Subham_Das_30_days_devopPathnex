@@ -5,29 +5,15 @@ docker is create and run container
 
 ansible playbook
 
+NAME → HOSTS → BECOME → TASKS → MODULE → NAME → STATE
+
 yaml
-name:install nginx on pathnex server
-server:all
-become :yes
+- name: Install nginx
+  hosts: all
+  become: yes
 
-tasks:
-   -name:install nginx
-   yum:
-     name:nginx
-     state:present
-
-
-lin1 name:install nginx server
-# this is just the name/decription on the play
-
-line2
-host:all
-
-beome:all
-
-tasks:
- -name:install nginx
-
-yum:
-name:nginx
-state:present
+  tasks:
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: present
