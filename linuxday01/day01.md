@@ -15,3 +15,4 @@ rm -r dir{1..30}
 cp -r day{01..02} backup /
 
 
+
