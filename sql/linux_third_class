@@ -1,0 +1,23 @@
+hii tday i learn devop 3 day 
+chmod 
+
+read 4
+write2
+execute1
+
+r
+w
+x
+
+chmod 700 sample.py
+owner
+group
+other
+
+ls -lah | grep 
+ls -lah | find
+
+sudo -i 
+whomi
+pwd
+
