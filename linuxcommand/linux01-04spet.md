@@ -318,3 +318,12 @@ terraform plan
 terraform apply
        ↓
 terraform destroy
+mkdir day{01..02}.md
+
+find 
+
+find . name e*
+find . type  Day*
+
+size 
+
