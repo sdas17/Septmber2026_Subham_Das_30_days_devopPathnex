@@ -326,4 +326,8 @@ find . name e*
 find . type  Day*
 
 size 
+find .type
+
+du -h disk usage size 
+df-h disk file 
 
