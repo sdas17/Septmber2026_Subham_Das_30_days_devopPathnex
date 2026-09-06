@@ -1,1 +1,3 @@
-print('hii')
+print('a')
+print('b')
+print('c')
