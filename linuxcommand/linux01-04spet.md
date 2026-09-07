@@ -330,4 +330,3 @@ find .type
 
 du -h disk usage size 
 df-h disk file 
-
