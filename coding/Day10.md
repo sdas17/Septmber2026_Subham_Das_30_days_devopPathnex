@@ -142,4 +142,6 @@ COPY . /opt/pathnex/devops-project/
 CMD ["ls", "-l", "/opt/pathnex/devops-project"]
 
 # Real Path
+
 /opt/pathnex/devops-project
+
