@@ -1,15 +1,17 @@
-name:install nginx
-host:yes
-become:all
--name:install nginx
-   yum:
-      name:install nginx
-      state:present
+##state present,absent,started,stopped
+##enable true and false
 
-docker --version
-docker  run image echo "hellow world"
+name: Install Nginx on Pathnex server
+  hosts: all
+  become: yes
 
+  tasks:
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: present
 
-# Docker File
-FROM ubuntu:22.04
-CMD ["echo", "Hello Pathnex"]
+   docker --version
+   docker run ubantu echo "hello world"
+   FROM UBANTU 2.
+   CMD ["echo", "Hello Pathnex"]
