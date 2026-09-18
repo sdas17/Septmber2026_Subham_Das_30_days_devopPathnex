@@ -65,6 +65,7 @@ pipeline {
         }
     }
 }
+
 🔹 GitLab CI/CD — Environment-Specific Deployments
 stages:
   - build
