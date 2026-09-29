@@ -1,4 +1,4 @@
-Day 20 — Security, Hardening, and Compliance
+Day 26— Security, Hardening, and Compliance
 
 🔹 Ansible — Configure Firewall with iptables
 -name:

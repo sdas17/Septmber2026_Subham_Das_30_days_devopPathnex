@@ -1,3 +1,5 @@
+#day 22
+
 docker compose up
 
 version:'2'
