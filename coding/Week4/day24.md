@@ -88,3 +88,52 @@ deploy:
     - aws lambda update-function-code
       --function-name pathnex-lambda
       --zip-file fileb://lambda.zip
+
+FROM maven:3.9-eclipse-temurin-17 AS builder
+
+WORKDIR /opt/pathnex/java-build
+
+COPY . /opt/pathnex/java-build/
+
+RUN mvn clean package
+
+FROM tomcat:9
+
+WORKDIR /usr/local/tomcat/webapps
+
+COPY --from=builder \
+     /opt/pathnex/java-build/target/*.war \
+     /usr/local/tomcat/webapps/
+
+EXPOSE 8080
+
+CMD ["catalina.sh", "run"]
+
+
+
+                   ┌───────────────┐
+                   │    Client     │
+                   └───────┬───────┘
+                           │
+                           v
+                   ┌───────────────┐
+                   │ API Gateway   │
+                   └───────┬───────┘
+                           │
+                           v
+                   ┌───────────────┐
+                   │    Lambda     │
+                   └───────────────┘
+
+Developer
+   |
+   v
+Git → Jenkins/GitLab → Build → Deploy
+                           |
+             ┌─────────────┴─────────────┐
+             v                           v
+        AWS Lambda                  Kubernetes/EKS
+                                      |
+                                     Helm
+                                      |
+                                 Microservices
