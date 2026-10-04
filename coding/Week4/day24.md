@@ -1,52 +1,78 @@
-# Day 23 — Serverless Architecture and Microservices
+Day 23 — Serverless Architecture & Microservices
 
-name:Deploy AWS Lambda Function
-host:localhost
-tasks:
-  -name:create lambda function
-   command: aws lambda create-function --function-name pathnex-lambda --runtime python3.8 --role arn:aws:iam::123456789012:role/lambda-execution-role --handler lambda_function.lambda_handler --zip-file fileb://lambda.zip
- 
-🔹 Terraform — Serverless API Gateway with Lambda Integration
-resource "aws_api_gateway_rest_api" "pathnex_api" {
+1. AWS Lambda
+
+Goal: Deploy a Python Lambda function using AWS CLI.
+
+Lambda structure
+lambda/
+├── lambda_function.py
+└── requirements.txt
+
+Example handler:
+
+def lambda_handler(event, context):
+    return {
+        "statusCode": 200,
+        "body": "Hello from Pathnex Lambda!"
+    }
+
+aws lambda create-function \
+  --function-name pathnex-lambda \
+  --runtime python3.12 \
+  --role arn:aws:iam::<ACCOUNT_ID>:role/lambda-execution-role \
+  --handler lambda_function.lambda_handler \
+  --zip-file fileb://lambda.zip
+
+    resource "aws_api_gateway_rest_api" "pathnex_api" {
   name        = "pathnex-api"
   description = "Pathnex API"
 }
 resource "aws_lambda_function" "pathnex_lambda" {
   function_name = "pathnex-lambda"
-  runtime       = "python3.8"
+  runtime       = "python3.12"
   role          = aws_iam_role.lambda_exec_role.arn
   handler       = "lambda_function.lambda_handler"
   filename      = "lambda.zip"
 }
-
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id = aws_api_gateway_rest_api.pathnex_api.id
-  resource_id = aws_api_gateway_resource.pathnex_resource.id
-  http_method = aws_api_gateway_method.pathnex_method.http_method
+  rest_api_id             = aws_api_gateway_rest_api.pathnex_api.id
+  resource_id             = aws_api_gateway_resource.pathnex_resource.id
+  http_method             = aws_api_gateway_method.pathnex_method.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri  = aws_lambda_function.pathnex_lambda.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.pathnex_lambda.invoke_arn
 }
-
 helm install pathnex-microservice ./microservice-chart
-pipline {agent any stages {
+helm list
+kubectl get pods
+kubectl get svc
+kubectl get deployment
+
+pipeline {
+    agent any
+
+    stages {
+
         stage('Build') {
             steps {
                 echo 'Building Lambda function...'
                 sh 'zip -r lambda.zip lambda/'
             }
         }
+
         stage('Deploy to AWS Lambda') {
             steps {
-                script {
-                    sh 'aws lambda update-function-code --function-name pathnex-lambda --zip-file fileb://lambda.zip'
-                }
+                sh '''
+                    aws lambda update-function-code \
+                    --function-name pathnex-lambda \
+                    --zip-file fileb://lambda.zip
+                '''
             }
         }
     }
-    }
+}
 
- 🔹 GitLab CI/CD — Deploy Lambda Function
 stages:
   - build
   - deploy
@@ -59,22 +85,55 @@ build:
 deploy:
   stage: deploy
   script:
-    - aws lambda update-function-code --function-name pathnex-lambda --zip-file fileb://lambda.zip
+    - aws lambda update-function-code
+      --function-name pathnex-lambda
+      --zip-file fileb://lambda.zip
 
- 🔹 Docker
-# Multi-Stage Docker Build
-# Stage 1 — Build Stage
 FROM maven:3.9-eclipse-temurin-17 AS builder
+
 WORKDIR /opt/pathnex/java-build
+
 COPY . /opt/pathnex/java-build/
+
 RUN mvn clean package
 
-# Stage 2 — Production Stage
 FROM tomcat:9
+
 WORKDIR /usr/local/tomcat/webapps
-COPY --from=builder /opt/pathnex/java-build/target/*.war /usr/local/tomcat/webapps/
+
+COPY --from=builder \
+     /opt/pathnex/java-build/target/*.war \
+     /usr/local/tomcat/webapps/
+
 EXPOSE 8080
+
 CMD ["catalina.sh", "run"]
-# Real Paths
-/opt/pathnex/java-build
-/usr/local/tomcat/webapps
+
+
+
+                   ┌───────────────┐
+                   │    Client     │
+                   └───────┬───────┘
+                           │
+                           v
+                   ┌───────────────┐
+                   │ API Gateway   │
+                   └───────┬───────┘
+                           │
+                           v
+                   ┌───────────────┐
+                   │    Lambda     │
+                   └───────────────┘
+
+Developer
+   |
+   v
+Git → Jenkins/GitLab → Build → Deploy
+                           |
+             ┌─────────────┴─────────────┐
+             v                           v
+        AWS Lambda                  Kubernetes/EKS
+                                      |
+                                     Helm
+                                      |
+                                 Microservices
